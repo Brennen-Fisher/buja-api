@@ -76,7 +76,7 @@ const listSchema = new Schema({
         required: false,
     },
     feat: {
-        type: String,
+        type: [String],
         required: false,
     },
     fact: {

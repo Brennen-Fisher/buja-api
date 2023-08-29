@@ -10,15 +10,11 @@ export const deletePost = async (req, res, next) => {
     // res.send("from controller");
     try {
         const list = await Listing.findById(req.params.id);
-
-
         if (list.userId !== req.userId)
-            return next(createError(403, "You can delete only your gig!"));
+            return next(createError(403, "You can only delete your gig!"));
 
         await Listing.findByIdAndDelete(req.params.id);
         res.status(200).send("Deleted");
-
-        // await User.findByIdAndDelete(req.params.id);
     } catch (error) {
         next(error);
     }
@@ -26,7 +22,6 @@ export const deletePost = async (req, res, next) => {
 export const createPost = async (req, res, next) => {
     // res.send("register");
     try {
-
         const newListing = new Listing({
             userId: req.userId,
             ...req.body,
@@ -39,8 +34,11 @@ export const createPost = async (req, res, next) => {
 }
 
 export const updatePost = async (req, res, next) => {
-
+    // console.log(req.body);
     try {
+        const list = await Listing.findById(req.params.id);
+        if (list.userId !== req.body.userId)
+            return next(createError(403, "You can only edit your gig!"));
         const updatedList = await Listing.findByIdAndUpdate(
             req.params.id,
             {
@@ -117,7 +115,7 @@ export const getSaved = async (req, res, next) => {
                 $in:
                     list.saved,
             }
-        });        
+        });
         if (!saved) next(createError(404, "Nothing found!"));
         res.status(200).send(saved);
     } catch (err) {
