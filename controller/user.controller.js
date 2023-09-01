@@ -77,3 +77,13 @@ export const delList = async (req, res, next) => {
         next(err);
     }
 }
+
+export const getUser = async (req, res, next) => {
+    try {
+        const user = await User.findById(req.params.id);
+        if (!user) next(createError(404, "User not found!"));
+        res.status(200).send(user);
+    } catch (err) {
+        next(err);
+    }
+}

@@ -54,6 +54,24 @@ export const updatePost = async (req, res, next) => {
     }
 }
 
+export const setVerified = async (req, res, next) => {
+    try {
+        const list = await Listing.findById(req.params.id);
+        const updatedList = await Listing.findByIdAndUpdate(
+            req.params.id,
+            {
+                $set: {
+                    verified: req.body.ver,
+                },
+            },
+        );
+        res.status(200).send(updatedList);
+    } catch (err) {
+        console.log(err);
+        next(err);
+    }
+}
+
 export const getPosts = async (req, res, next) => {
     const q = req.query;
     const filters = {
@@ -63,7 +81,9 @@ export const getPosts = async (req, res, next) => {
         ...(q.com && { commune: q.com }),
         ...(q.zone && { zone: q.zone }),
         ...(q.style && { style: q.style }),
-        ...(q.price && { price: { $lte: q.price } }),
+        ...(q.min && { price: { $lte: q.min } }),
+        ...(q.max && { price: { $gte: q.max } }),
+        ...((q.min && q.max) && { price: { $lte: q.min, $gte: q.max } }),
         ...(q.search && { title: { $regex: q.search, $options: "i" } }),
     };
     const count = await Listing.find(filters).count();
