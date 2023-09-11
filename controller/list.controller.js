@@ -10,7 +10,7 @@ export const deletePost = async (req, res, next) => {
     // res.send("from controller");
     try {
         const list = await Listing.findById(req.params.id);
-        if (list.userId !== req.userId)
+        if (list.userId !== req.userId || req?.admin)
             return next(createError(403, "You can only delete your gig!"));
 
         await Listing.findByIdAndDelete(req.params.id);
@@ -81,9 +81,9 @@ export const getPosts = async (req, res, next) => {
         ...(q.com && { commune: q.com }),
         ...(q.zone && { zone: q.zone }),
         ...(q.style && { style: q.style }),
-        ...(q.min && { price: { $lte: q.min } }),
-        ...(q.max && { price: { $gte: q.max } }),
-        ...((q.min && q.max) && { price: { $lte: q.min, $gte: q.max } }),
+        ...(q.min && { price: { $gte: q.min } }),
+        ...(q.max && { price: { $lte: q.max } }),
+        ...((q.min && q.max) && { price: { $lte: q.max, $gte: q.min } }),
         ...(q.search && { title: { $regex: q.search, $options: "i" } }),
     };
     const count = await Listing.find(filters).count();
